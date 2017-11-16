@@ -18,20 +18,6 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 osascript -e 'tell application "System Preferences" to quit'
 
 
-# Configure name
-###############################################################################
-
-echo "What’s my name?"
-read COMPUTERNAME
-
-# Set computer name
-sudo scutil --set ComputerName "$COMPUTERNAME"
-sudo scutil --set HostName "$COMPUTERNAME"
-sudo scutil --set LocalHostName "$COMPUTERNAME"
-sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$COMPUTERNAME"
-
-message success "Configured name"
-
 # General UI/UX
 ###############################################################################
 
@@ -80,22 +66,11 @@ message success "General UI/UX"
 # (e.g. enable Tab in modal dialogs)
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
 
-# Use scroll gesture with the Ctrl (^) modifier key to zoom
-defaults write com.apple.universalaccess closeViewScrollWheelToggle -bool true
-defaults write com.apple.universalaccess HIDScrollZoomModifierMask -int 262144
-
 # Follow the keyboard focus while zoomed in
 defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool false
 
 # Stop iTunes from responding to the keyboard media keys
 launchctl unload -w /System/Library/LaunchAgents/com.apple.rcd.plist 2> /dev/null
-
-# Disable press-and-hold for keys in favor of key repeat
-defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-
-# Set a blazingly fast keyboard repeat rate
-defaults write NSGlobalDomain KeyRepeat -int 2
-defaults write NSGlobalDomain InitialKeyRepeat -int 35
 
 message success "Trackpad, mouse, keyboard, Bluetooth accessories, and input"
 
@@ -108,9 +83,6 @@ defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
 defaults write com.apple.finder ShowHardDrivesOnDesktop -bool false
 defaults write com.apple.finder ShowMountedServersOnDesktop -bool false
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
-
-# Finder: allow quitting via ⌘ + Q; doing so will also hide desktop icons
-defaults write com.apple.finder QuitMenuItem -bool true
 
 # New window points to home
 defaults write com.apple.finder NewWindowTarget -string "PfHm"
@@ -137,11 +109,6 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
-# Automatically open a new Finder window when a volume is mounted
-defaults write com.apple.frameworks.diskimages auto-open-ro-root -bool true
-defaults write com.apple.frameworks.diskimages auto-open-rw-root -bool true
-defaults write com.apple.finder OpenWindowForNewRemovableDisk -bool true
-
 # Set the Finder prefs for showing a few different volumes on the Desktop.
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool false
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
@@ -149,9 +116,6 @@ defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool false
 # Use column view in all Finder windows by default
 # Four-letter codes for the other view modes: `icnv`, `Nlsv`, `clmv`, `Flwv`
 defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
-
-# Disable the warning before emptying the Trash
-defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
 # Show the ~/Library folder
 chflags nohidden ~/Library
@@ -174,7 +138,7 @@ message success "Finder"
 # Wipe all (default) app icons from the Dock
 # This is only really useful when setting up a new Mac, or if you don’t use
 # the Dock to launch apps.
-defaults write com.apple.dock persistent-apps -array
+# defaults write com.apple.dock persistent-apps -array
 
 # Disable Dashboard
 defaults write com.apple.dashboard mcx-disabled -bool true
@@ -184,9 +148,6 @@ defaults write com.apple.dock dashboard-in-overlay -bool true
 
 # Don’t automatically rearrange Spaces based on most recent use
 defaults write com.apple.dock mru-spaces -bool false
-
-# Automatically hide and show the Dock
-defaults write com.apple.dock autohide -bool true
 
 message success "Dock and Dashboard"
 
@@ -229,35 +190,6 @@ defaults write com.apple.Safari SendDoNotTrackHTTPHeader -bool true
 message success "Safari & WebKit"
 
 
-# Mail
-###############################################################################
-
-# Disable send and reply animations in Mail.app
-defaults write com.apple.mail DisableReplyAnimations -bool true
-defaults write com.apple.mail DisableSendAnimations -bool true
-
-# Add the keyboard shortcut ⌘ + Enter to send an email in Mail.app
-defaults write com.apple.mail NSUserKeyEquivalents -dict-add "Send" "@\U21a9"
-
-# Enable classic mode
-defaults write com.apple.mail RichMessageList -bool false
-
-message success "Mail"
-
-
-# Time Machine
-###############################################################################
-
-# Prevent Time Machine from prompting to use new hard drives as backup volume
-defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
-
-# Disable local Time Machine backups
-hash tmutil &> /dev/null && sudo tmutil disablelocal
-
-message success "Time Machine"
-
-
-
 # Activity Monitor
 ###############################################################################
 
@@ -291,30 +223,6 @@ defaults write com.apple.DiskUtility DUDebugMenuEnabled -bool true
 defaults write com.apple.DiskUtility advanced-image-options -bool true
 
 message success "Disk Utility"
-
-
-# App Store
-###############################################################################
-
-# Enable the WebKit Developer Tools in the App Store
-defaults write com.apple.appstore WebKitDeveloperExtras -bool true
-
-# Enable Debug Menu in the App Store
-defaults write com.apple.appstore ShowDebugMenu -bool true
-
-# Enable the automatic update check
-defaults write com.apple.SoftwareUpdate AutomaticCheckEnabled -bool true
-
-# Download newly available updates in background
-defaults write com.apple.SoftwareUpdate AutomaticDownload -int 1
-
-# Install System data files & security updates
-defaults write com.apple.SoftwareUpdate CriticalUpdateInstall -int 1
-
-# Turn on app auto-update
-defaults write com.apple.commerce AutoUpdate -bool true
-
-message success "App Store"
 
 
 # Photos
@@ -371,16 +279,6 @@ defaults write org.m0k.transmission WarningDonate -bool false
 
 # Hide the legal disclaimer
 defaults write org.m0k.transmission WarningLegal -bool false
-
-
-# Hide annoying ~/folders
-
-chflags hidden ~/Applications/
-chflags hidden ~/Documents/
-chflags hidden ~/Movies/
-chflags hidden ~/Music/
-chflags hidden ~/Pictures/
-chflags hidden ~/Public/
 
 message success "Transmission"
 
